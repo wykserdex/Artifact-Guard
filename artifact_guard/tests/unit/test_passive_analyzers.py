@@ -17,16 +17,24 @@ class TestDnsAnalyzer:
 
     @pytest.mark.asyncio
     async def test_analyze_no_hostname(self):
-        """Test analyze with no hostname."""
+        """Test analyze when the URL has no extractable hostname.
+
+        Прежняя версия ставила context._hostname = None вручную — но это
+        уже дефолтное значение до первого обращения к .hostname, а само
+        свойство пересчитывает хост из artifact_value при каждом доступе,
+        если _hostname ещё не закеширован. С "http://example.com" хост
+        всегда извлекается, так что тест проверял не то состояние, которое
+        описывал. Используем схему без netloc (javascript:), для которой
+        urlsplit(...).hostname реально даёт None.
+        """
         analyzer = DnsAnalyzer()
         context = AnalysisContext(
             artifact_type=ArtifactType.URL,
-            artifact_value="http://example.com",
+            artifact_value="javascript:alert(1)",
         )
-        context._hostname = None
-        
+
         indicators = await analyzer.analyze(context)
-        
+
         assert len(indicators) == 0
 
     @pytest.mark.asyncio
@@ -121,16 +129,20 @@ class TestRdapAnalyzer:
 
     @pytest.mark.asyncio
     async def test_analyze_no_hostname(self):
-        """Test analyze with no hostname."""
+        """Test analyze when the URL has no extractable hostname.
+
+        См. комментарий в TestDnsAnalyzer.test_analyze_no_hostname — то же
+        самое: без netloc urlsplit(...).hostname реально None, а не через
+        подмену уже-дефолтного _hostname.
+        """
         analyzer = RdapAnalyzer()
         context = AnalysisContext(
             artifact_type=ArtifactType.URL,
-            artifact_value="http://example.com",
+            artifact_value="javascript:alert(1)",
         )
-        context._hostname = None
-        
+
         indicators = await analyzer.analyze(context)
-        
+
         assert len(indicators) == 0
 
     @pytest.mark.asyncio

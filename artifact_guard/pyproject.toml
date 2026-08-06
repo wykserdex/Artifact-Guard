@@ -19,6 +19,8 @@ dependencies = [
     "python-multipart>=0.0.6",
     "alembic>=1.13.0",
     "sqlalchemy[asyncio]>=2.0.0",
+    "dnspython>=2.4.0",
+    "python-magic>=0.4.27",
 ]
 
 [project.optional-dependencies]
